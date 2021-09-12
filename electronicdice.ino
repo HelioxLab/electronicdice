@@ -6,8 +6,6 @@
 #define PINLEDS4 3
 // Defini le pin du capteur d'inclinaison
 #define PINBUTTON 4
-// Temps que le dé reste affiché 1000 ms = 1 seconde
-#define TIME 7000;
 // Variable pour le random de l'animation 
 int randA;
 // Il n'y a pas encore eu de lancement de dé
