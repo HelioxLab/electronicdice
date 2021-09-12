@@ -1,122 +1,97 @@
-// ----- DECLARATION DES VARIABLES ------
-
-// Pour les LED
-int pinLeds1 = 0; 
-int pinLeds2 = 1;
-int pinLeds3 = 2;
-int pinLed4 = 3; 
-
-// on indique la pin du capteur d'inclinaison
-int buttonPin = 4; 
-// On vérifie l'état du capteur d'inclinaison
-int buttonState;
+// ----- INITIALISATION ------
+// Defini pin leds
+#define PINLEDS1 0
+#define PINLEDS2 1
+#define PINLEDS3 2
+#define PINLEDS4 3
+// Defini le pin du capteur d'inclinaison
+#define PINBUTTON 4
+// Temps que le dé reste affiché 1000 ms = 1 seconde
+#define TIME 7000;
 // Variable pour le random de l'animation 
-long ranim;
-// Variable pour le random du résultat final
-long ran;
+int randA;
 // Il n'y a pas encore eu de lancement de dé
 int last = 0;
-// Temps que le dé reste affiché 1000 ms = 1 seconde
-int time = 7000; 
-
 
 // ----- DECLARATION ENTREES ET SORTIES ------
-void setup ()
+void setup(void)
 {
-  //On indique que les LED sont des sorties
-  pinMode (pinLeds1, OUTPUT);
-  pinMode (pinLeds2, OUTPUT);
-  pinMode (pinLeds3, OUTPUT);
-  pinMode (pinLed4, OUTPUT);
-  // On indique que le detecteur d'inclinaison est une entrée.
-  pinMode (buttonPin, INPUT);
-
-  randomSeed(analogRead(0)); // on initialise le fait de pouvoir lancer des randoms
+	//On indique que les LEDS sont des sorties
+	for (int led = 0; led < 4; led++)
+		pinMode (led, OUTPUT);
+	// On indique que le detecteur d'inclinaison est une entrée.
+	pinMode (PINBUTTON, INPUT);
+	// on initialise le fait de pouvoir lancer des randoms
+	randomSeed(analogRead(0));
 }
 
 // ----- ACTIONS A EFFECTUER ------
-void loop()
-{	
-  buttonState = digitalRead(buttonPin);
-  if (buttonState == LOW){ // Si on bouge le dé
-    
-   for (int i=0; i <= 7; i++){ // Animation pour 8 affichages de dé avec 200 ms entre chaque
-     
-  ranim = random(1, 7); // on effectue un random pour chaque affichage
-  
-  while (ranim == last){ // On verifie que deux affichages consécutifs ne sont pas les mêmes 
-    ranim = random(1, 7); // Sinon on random un autre chiffre
-  }
-  last = ranim; // On stock le chiffre pour éviter d'afficher les 2 mêmes valeurs de dé pendant l'animation
-    if (ranim == 1){
-      digitalWrite (pinLed4, HIGH);
-    }
-    if (ranim == 2){
-      digitalWrite (pinLeds1, HIGH);
-    }
-    if (ranim == 3){
-      digitalWrite (pinLeds3, HIGH);
-      digitalWrite (pinLed4, HIGH);
-    }
-    if (ranim == 4){
-      digitalWrite (pinLeds1, HIGH);
-      digitalWrite (pinLeds3, HIGH);
-    }
-    if (ranim == 5){
-      digitalWrite (pinLeds1, HIGH);
-      digitalWrite (pinLeds3, HIGH);
-      digitalWrite (pinLed4, HIGH);
-   }
-   if (ranim == 6){
-      digitalWrite (pinLeds1, HIGH);
-      digitalWrite (pinLeds2, HIGH);
-      digitalWrite (pinLeds3, HIGH);
-   }
-      delay(200); // Pause entre l'affichage de l'animation : 200ms led éteintes
-    digitalWrite (pinLeds1, LOW);
-    digitalWrite (pinLeds2, LOW);
-    digitalWrite (pinLeds3, LOW);
-    digitalWrite (pinLed4, LOW);
-      delay(50);
-   } 
-    
-    
-// RANDOM DU RESULTAT FINAL
-    ran = random(1, 7); 
-    if (ran == 1){
-      digitalWrite (pinLed4, HIGH);
-      delay (time); // time étant la variable qui vaut 7000ms donc affichage du résultat pendant 7 secondes
-    }
-    if (ran == 2){
-      digitalWrite (pinLeds1, HIGH);
-      delay (time);
-    }
-    if (ran == 3){
-      digitalWrite (pinLeds3, HIGH);
-      digitalWrite (pinLed4, HIGH);
-      delay (time);
-    }
-    if (ran == 4){
-      digitalWrite (pinLeds1, HIGH);
-      digitalWrite (pinLeds3, HIGH);
-      delay (time);
-    }
-    if (ran == 5){
-      digitalWrite (pinLeds1, HIGH);
-      digitalWrite (pinLeds3, HIGH);
-      digitalWrite (pinLed4, HIGH);
-      delay (time);
-   }
-   if (ran == 6){
-      digitalWrite (pinLeds1, HIGH);
-      digitalWrite (pinLeds2, HIGH);
-      digitalWrite (pinLeds3, HIGH);
-      delay (time);
-   }
-  }
-  // On éteint tout pour pouvoir relancer le dé
-  digitalWrite (pinLeds1, LOW);
-  digitalWrite (pinLeds2, LOW);
-  digitalWrite (pinLeds3, LOW);
-  digitalWrite (pinLed4, LOW);
+void loop(void)
+{
+	// Si on bouge le dé
+	if (!digitalRead(PINBUTTON))
+	{
+		// Animation pour 8 affichages de dé avec 200 ms entre chaque
+		for (int i=0; i < 8; i++)
+		{
+			// on effectue un random pour chaque affichage
+			randA = random(1, 7);
+			// On verifie que deux affichages consécutifs ne sont pas les mêmes
+			while (randA == last)
+				randA = random(1, 7); // Sinon on random un autre chiffre
+			// On stock le chiffre pour éviter d'afficher les 2 mêmes valeurs de dé pendant l'animation
+			last = randA;
+			// Appel de la fonction viewLed pour afficher les led
+			viewLed(randA);
+			// Pause entre l'affichage de l'animation : 200ms led éteintes
+			delay(200);
+			for (int led = 0; led < 4; led++)
+				digitalWrite(led, LOW);
+			delay(50);
+		} 
+
+		/*
+			RANDOM DU RESULTAT FINAL
+			Appel de la fonction viewLed pour afficher les led
+		*/
+		viewLed(random(1, 7));
+		// 7000ms donc affichage du résultat pendant 7 secondes
+		delay (7000);
+	}
+	// On éteint tout pour pouvoir relancer le dé
+	for (int led = 0; led < 4; led++)
+		digitalWrite(led, LOW);
+}
+
+// Creation d'une fonction pour eviter la repetition dans le code
+void	viewLed(int number)
+{
+	switch(number)
+	{
+		case 1:
+			digitalWrite(PINLEDS4, HIGH);
+			break ;
+		case 2:
+			digitalWrite(PINLEDS1, HIGH);
+			break ;
+		case 3:
+			digitalWrite(PINLEDS3, HIGH);
+			digitalWrite(PINLEDS4, HIGH);
+			break ;
+		case 4:
+			digitalWrite(PINLEDS1, HIGH);
+			digitalWrite(PINLEDS3, HIGH);
+			break ;
+		case 5:
+			digitalWrite(PINLEDS1, HIGH);
+			digitalWrite(PINLEDS3, HIGH);
+			digitalWrite(PINLEDS4, HIGH);
+			break ;
+		case 6:
+			digitalWrite(PINLEDS1, HIGH);
+			digitalWrite(PINLEDS2, HIGH);
+			digitalWrite(PINLEDS3, HIGH);
+			break ;
+	}
+	return ;
 }
